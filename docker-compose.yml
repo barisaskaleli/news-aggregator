@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+    main:
+        container_name: News-Serve
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        command: 'php artisan serve --host=0.0.0.0'
+        volumes:
+            - .:/app
+        ports:
+            - 8000:8000
+
+    mysql8:
+        image: mysql:8
+        command: --default-authentication-plugin=mysql_native_password
+        container_name: News-mysql8
+        restart: unless-stopped
+        ports:
+            - '8878:3306'
+        environment:
+            MYSQL_USER: 'db_user'
+            MYSQL_PASSWORD: '123456'
+            MYSQL_ROOT_PASSWORD: '123456'
+            MYSQL_DATABASE: 'news-aggregator'
+        volumes:
+            - './docker/data/mysql8:/var/lib/mysql'
+            - './docker/sql/:/docker-entrypoint-initdb.d'
+
+    queue:
+        container_name: News-Queue
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        command: 'php artisan queue:work'
+
+    redis:
+        platform: linux/arm64
+        image: redis:latest
+        container_name: News-redis
+        ports:
+            - '55010:6379'
+        volumes:
+            - ./docker/redis.conf:/redis.conf
+        command: [ "redis-server", "/redis.conf" ]
+
+    memcached:
+        platform: linux/arm64
+        image: memcached:latest
+        container_name: News-memcached
+        restart: unless-stopped
+        ports:
+            - '55009:11211'
+
+volumes:
+    db:
+        driver: local
