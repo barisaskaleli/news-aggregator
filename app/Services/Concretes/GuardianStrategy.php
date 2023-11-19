@@ -26,7 +26,7 @@ class GuardianStrategy extends AbstractNewsStrategy
 
         $news = $this->prepareNews($res['response']['results']);
 
-        return Article::insert($news);
+        return $this->storeNewsThroughQueue($news);
     }
 
     /**

@@ -25,7 +25,7 @@ class NewYorkTimesStrategy extends AbstractNewsStrategy
 
         $news = $this->prepareNews($res['results']);
 
-        return Article::insert($news);
+        return $this->storeNewsThroughQueue($news);
     }
 
     /**
@@ -41,7 +41,7 @@ class NewYorkTimesStrategy extends AbstractNewsStrategy
                 'source_id' => self::SOURCE_ID,
                 'title' => $item['title'],
                 'source_url' => $item['url'],
-                'image_url' => $item['media'][0]['media-metadata'][0]['url'],
+                'image_url' => $item['media'][0]['media-metadata'][0]['url'] ?? null,
                 'published_at' => $item['published_date'],
                 'author_id' => $this->AuthorfindOrCreate($item['byline']),
                 'category_id' => $this->categoryFindOrCreate($item['section'])

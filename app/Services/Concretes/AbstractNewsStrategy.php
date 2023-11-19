@@ -2,6 +2,7 @@
 
 namespace App\Services\Concretes;
 
+use App\Jobs\StoreNewsJob;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Source;
@@ -86,5 +87,18 @@ abstract class AbstractNewsStrategy implements NewsStrategyInterface
         ]);
 
         return $source->id;
+    }
+
+    /**
+     * @param array $news
+     * @return bool
+     */
+    protected function storeNewsThroughQueue(array $news): bool
+    {
+        foreach ($news as $item) {
+            StoreNewsJob::dispatch($item);
+        }
+
+        return true;
     }
 }

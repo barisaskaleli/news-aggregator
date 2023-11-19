@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-    main:
+    app:
         container_name: News-Serve
         build:
             context: .
@@ -10,6 +10,20 @@ services:
             - .:/app
         ports:
             - 8000:8000
+        depends_on:
+            - redis
+
+    redis:
+        platform: linux/arm64
+        image: redis:latest
+        container_name: News-redis
+        ports:
+            - '55010:6379'
+        volumes:
+            - ./docker/redis.conf:/redis.conf
+        command: [ "redis-server", "/redis.conf" ]
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
 
     mysql8:
         image: mysql:8
@@ -27,30 +41,27 @@ services:
             - './docker/data/mysql8:/var/lib/mysql'
             - './docker/sql/:/docker-entrypoint-initdb.d'
 
-    queue:
-        container_name: News-Queue
+    horizon:
+        container_name: News-Horizon
         build:
             context: .
             dockerfile: docker/Dockerfile
-        command: 'php artisan queue:work'
-
-    redis:
-        platform: linux/arm64
-        image: redis:latest
-        container_name: News-redis
-        ports:
-            - '55010:6379'
+        command: 'php artisan horizon'
         volumes:
-            - ./docker/redis.conf:/redis.conf
-        command: [ "redis-server", "/redis.conf" ]
+            - .:/app
+        depends_on:
+            - redis
 
-    memcached:
-        platform: linux/arm64
-        image: memcached:latest
-        container_name: News-memcached
-        restart: unless-stopped
-        ports:
-            - '55009:11211'
+    scheduler:
+        container_name: News-Scheduler
+        build:
+            context: .
+            dockerfile: docker/Dockerfile
+        command: 'php artisan schedule:work'
+        volumes:
+            - .:/app
+        depends_on:
+            - redis
 
 volumes:
     db:

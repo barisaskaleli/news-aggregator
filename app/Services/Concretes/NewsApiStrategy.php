@@ -39,7 +39,7 @@ class NewsApiStrategy extends AbstractNewsStrategy
 
         $news = $this->prepareNews($res['articles'], $category);
 
-        return Article::insert($news);
+        return $this->storeNewsThroughQueue($news);
     }
 
     /**

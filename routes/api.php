@@ -1,7 +1,11 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use \App\Http\Controllers\AuthController as AuthController;
+use \App\Http\Controllers\NewsController as NewsController;
+use \App\Http\Controllers\AuthorController as AuthorController;
+use \App\Http\Controllers\SourceController as SourceController;
+use \App\Http\Controllers\CategoryController as CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +18,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['prefix' => 'auth'], static function () {
+    Route::post('/create', [AuthController::class, 'store']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+
+Route::group(['middleware' => ['auth:sanctum']], static function () {
+    Route::get('/get-news', [NewsController::class, 'getLatestNews']);
+    Route::post('/get-news', [NewsController::class, 'getNewsByFilter']);
+    Route::post('/get-authors', [AuthorController::class, 'getAuthors']);
+    Route::post('/get-categories', [CategoryController::class, 'getCategories']);
+    Route::post('/get-sources', [SourceController::class, 'getSources']);
 });
