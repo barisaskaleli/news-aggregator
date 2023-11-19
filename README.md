@@ -1,7 +1,7 @@
 # Installation
 
 ```
-cp .env.example .env
+sh bin/startup.sh
 ```
 
 ```
@@ -11,9 +11,6 @@ docker-compose up -d --build
 And then get in the fpm container and run these commands
 ```
 docker exec -it News-Serve sh
-```
-```
-composer install
 ```
 ```
 php artisan migrate --seed

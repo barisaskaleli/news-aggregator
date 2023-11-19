@@ -51,6 +51,7 @@ services:
             - .:/app
         depends_on:
             - redis
+            - app
 
     scheduler:
         container_name: News-Scheduler
@@ -62,6 +63,7 @@ services:
             - .:/app
         depends_on:
             - redis
+            - app
 
 volumes:
     db:
